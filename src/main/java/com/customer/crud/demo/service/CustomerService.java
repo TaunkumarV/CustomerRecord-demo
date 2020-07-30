@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 import com.customer.crud.demo.models.Customer;
 import com.customer.crud.demo.models.NoRecordFoundException;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+
 
 
 /**
@@ -32,6 +36,7 @@ public class CustomerService {
 	 * @param customer
 	 * @return
 	 */
+	//@CachePut(value = "customer", key = "#cust.id")
 	public Customer insertRecord(Customer customer) {
 		customer = customerrepo.save(customer);
 
@@ -44,17 +49,18 @@ public class CustomerService {
 	 * @return
 	 * @throws NoRecordFoundException
 	 */
+	//@CachePut(value = "customer", key = "#cust.id")
 	public Customer updateRecord(Customer customer) throws NoRecordFoundException {
 		Optional<Customer> record = customerrepo.findById(customer.getId());
 
 		if (record.isPresent()) {
-			Customer newEntity = record.get();
-			newEntity.setId(customer.getId());
-			newEntity.setName(customer.getName());
-			newEntity.setEmailaddress(customer.getEmailaddress());
-			newEntity = customerrepo.save(newEntity);
+			Customer updateRecord = record.get();
+			updateRecord.setId(customer.getId());
+			updateRecord.setName(customer.getName());
+			updateRecord.setEmailaddress(customer.getEmailaddress());
+			updateRecord = customerrepo.save(updateRecord);
 
-			return newEntity;
+			return updateRecord;
 		} else {
 			logger.info("No record found for given id {}", customer.getId());
 			throw new NoRecordFoundException("No record found for given id");
@@ -66,6 +72,7 @@ public class CustomerService {
 	 * @param customerid
 	 * @throws NoRecordFoundException
 	 */
+	//@CacheEvict(value = "customer", allEntries=true)
 	public void deleteRecordById(int customerid) throws NoRecordFoundException {
 		Optional<Customer> record = customerrepo.findById(customerid);
 
@@ -84,6 +91,7 @@ public class CustomerService {
 	 * @return
 	 * @throws NoRecordFoundException
 	 */
+	//@Cacheable(value ="customer" ,key ="#p0" )
 	public Customer getRecordById(int customerid) throws NoRecordFoundException {
 		Optional<Customer> record = customerrepo.findById(customerid);
 
